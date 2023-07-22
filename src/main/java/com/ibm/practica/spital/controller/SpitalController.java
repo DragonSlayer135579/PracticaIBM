@@ -1,6 +1,7 @@
 package com.ibm.practica.spital.controller;
 
 import com.ibm.practica.spital.DTO.AddReservation;
+import com.ibm.practica.spital.DTO.Doctor;
 import com.ibm.practica.spital.DTO.Pacient;
 import com.ibm.practica.spital.DTO.Reservation;
 import com.ibm.practica.spital.service.SpitalService;
@@ -37,6 +38,15 @@ public class SpitalController {
         return result;
     }
 
+    @GetMapping("/getAllDoctors")
+    public List<Doctor> getAllDoctors(){
+        log.info("SpitalController.getAllDoctors() has started...");
+        List<Doctor> result = service.getAllDoctors();
+
+        log.info("SpitalController.getAllDoctors() has finished.");
+        return result;
+    }
+
     @GetMapping("/reservations")
     public List<Reservation> getReservations(){
         return service.getReservations();
@@ -65,6 +75,10 @@ public class SpitalController {
     public String addPacient(){
         return "Pacient added";
     }
+    @PostMapping("/addDoctor")
+    public String addDoctor(){
+        return "Doctor added";
+    }
 
     @DeleteMapping("/deleteReservation")
     public ResponseEntity deleteReservation(String reservationID){
@@ -84,5 +98,10 @@ public class SpitalController {
     @PostMapping("/editPacient")
     public String editPacient(){
         return "Pacient edited";
+    }
+
+    @DeleteMapping("/deleteDoctor")
+    public String deleteDoctor(){
+        return "Doctor deleted";
     }
 }
