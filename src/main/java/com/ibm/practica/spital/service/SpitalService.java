@@ -1,32 +1,58 @@
 package com.ibm.practica.spital.service;
 
-import com.ibm.practica.spital.DTO.AddReservation;
-import com.ibm.practica.spital.DTO.Doctor;
-import com.ibm.practica.spital.DTO.Pacient;
-import com.ibm.practica.spital.DTO.Reservation;
+import com.ibm.practica.spital.DTO.*;
+import com.ibm.practica.spital.entity.Pacient;
+import com.ibm.practica.spital.entity.Doctor;
+
+import com.ibm.practica.spital.repository.DoctorRepository;
+import com.ibm.practica.spital.repository.PacientRepository;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ObjectUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j2
 public class SpitalService {
 
+ @Autowired
+ PacientRepository pacientRepository;
+ @Autowired
+ DoctorRepository doctorRepository;
 
- public List<Pacient> getAllPacients(){
+ ModelMapper mapper = new ModelMapper();
+
+ public List<PacientDTO> getAllPacients(){
   log.info("SpitalService.getAllPacients() retrieving all pacients...");
-  Pacient p = new Pacient();
-  p.setPacientID("12313");
-  p.setFirstName("Bogdan");
-  Pacient p1 = new Pacient();
-  p1.setPacientID("12314");
-  p1.setFirstName("Dan");
-  return List.of(p,p1);
- }
 
+// alternativa clasica
+//  List<Pacient> list = pacientRepository.findAll();
+//  List<PacientDTO> result = new ArrayList<>();
+//  for (Pacient pacient: list) {
+//// alternativa la model mapper
+////   PacientDTO dto = new PacientDTO(pacient.getFirstName(), pacient.getLastName(), pacient.getAge(),pacient.getIssue());
+//   PacientDTO dto = mapper.map(pacient,PacientDTO.class);
+//   result.add(dto);
+//  }
+
+  return pacientRepository.findAll().stream()
+      .map(pacient -> mapper.map(pacient,PacientDTO.class))
+      .collect(Collectors.toList());
+ }
+ public List<DoctorDTO> getAllDoctors() {
+  log.info("SpitalService.getAllDoctors() retrieving all pacients...");
+
+
+  return doctorRepository.findAll().stream()
+          .map(doctor -> mapper.map(doctor,DoctorDTO.class))
+          .collect(Collectors.toList());
+ }
  public List<Reservation> getReservations(){
   log.info("SpitalService.getReservations() retrieving all reservations...");
   Reservation p = new Reservation();
@@ -69,19 +95,33 @@ public class SpitalService {
   return false;
  }
 
- public List<Doctor> getAllDoctors() {
-  log.info("SpitalService.getAllDoctors() retrieving all pacients...");
-  Doctor p = new Doctor();
-  p.setDoctorID("1");
-  p.setFirstName("Bogdan");
-  p.setSpecialization("Anestezie");
-  p.setDoctorID("1");
-  p.setAge(40);
-  Doctor p1 = new Doctor();
-  p1.setDoctorID("2");
-  p1.setFirstName("Ion");
-  p1.setSpecialization("Cardiologie");
-  p1.setAge(21);
-  return List.of(p,p1);
+ public boolean addPacient(AddPacientDTO pacientDTO){
+  Pacient pacient = mapper.map(pacientDTO,Pacient.class);
+  String id = UUID.randomUUID().toString();
+  log.info("id is: " + id);
+  pacient.setPacientID(id.replace("-",""));
+  Pacient p = pacientRepository.save(pacient);
+  log.info("saved pacient id is: " + p.getPacientID());
+  return ObjectUtils.isNotEmpty(p);
  }
+ public boolean addDoctor(AddDoctorDTO doctorDTO){
+  Doctor doctor = mapper.map(doctorDTO,Doctor.class);
+  String id = UUID.randomUUID().toString();
+  log.info("id is: " + id);
+  doctor.setDoctorID(id.replace("-",""));
+  Doctor p = doctorRepository.save(doctor);
+  log.info("saved doctor id is: " + p.getDoctorID());
+  return ObjectUtils.isNotEmpty(p);
+ }
+ public boolean deletePacient(String pacientID){
+  return false;
+ }
+
+ public boolean editPacient(PacientDTO pacientDTO){
+  return true;
+ }
+
+
+
+
 }
